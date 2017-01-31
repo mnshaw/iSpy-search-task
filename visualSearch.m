@@ -50,7 +50,6 @@ function visualSearch()
     Priority(MaxPriority(window1));
     Priority(2);
     
-    % Display target face
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
     imageSize = size(ispyIm);
@@ -69,3 +68,21 @@ function visualSearch()
     % Blank screen
     Screen(window1, 'FillRect', backgroundColor);
     Screen('Flip', window1, tFixation + fixationDuration - slack,0);
+
+
+    Screen('CloseAll')
+
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Subfunctions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Draw a fixation cross (overlapping horizontal and vertical bar)
+function drawCross(window,W,H)
+    barLength = 16; % in pixels
+    barWidth = 2; % in pixels
+    barColor = 255; % number from 0 (black) to 255 (white) 
+    Screen('FillRect', window, barColor,[ (W-barLength)/2 (H-barWidth)/2 (W+barLength)/2 (H+barWidth)/2]);
+    Screen('FillRect', window, barColor ,[ (W-barWidth)/2 (H-barLength)/2 (W+barWidth)/2 (H+barLength)/2]);
+end
