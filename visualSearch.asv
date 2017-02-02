@@ -54,34 +54,33 @@ function visualSearch()
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
     
-        circleIm = imread(fullfile('Images/greenCircle.png'));
+    circleIm = imread(fullfile('Images/greenCircle.png'));
     circleImTarg = Screen('MakeTexture', window1, circleIm);
     
     imageSize = size(ispyIm);
+    
     posTarg = [0 0 W H];
+    posCircle = [W/3 H/3 (W/3)+256 (H/3)+256];
+    
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
-    
-    
-    Screen('Flip', window1);
-    
-    posCircle = [W/3 H/3 (W/3)+256 (H/3)+256];
-    Screen('DrawTexture', window1, circleImTarg, [], posCircle);
-    Screen('Flip', window1);
-    
-    WaitSecs(10.00)
-        
+     
+    clicks = 0;
+    tic % Reset the clock
+    SetMouse(W/2,H/2,window1);
+    ShowCursor('CrossHair',window1);
+    [mouse_x,mouse_y,buttons]=GetMouse(window1);
 
-    % Show fixation cross
-    fixationDuration = 0.500; % Length of fixation in seconds
-    drawCross(window1,W,H);
-    tFixation = Screen('Flip', window1);
-
-    % Blank screen
-    Screen(window1, 'FillRect', backgroundColor);
-    Screen('Flip', window1, tFixation + fixationDuration - slack,0);
-
-
+    while clicks == 0;
+        Screen('Flip', window1);
+        [clicks,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
+        RT = toc;
+    end
+    
+    display([mouse_x, mouse_y, buttons, RT]);
+    
+    WaitSecs(4.00)
+    
     Screen('CloseAll')
 
 

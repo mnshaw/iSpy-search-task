@@ -64,23 +64,23 @@ function visualSearch()
     
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
-    Screen('DrawTexture', window1, circleImTarg, [], posCircle);
+     
+    clicks = 0;
+    tic % Reset the clock
+    SetMouse(W/2,H/2,window1);
+    ShowCursor('CrossHair',window1);
+    [mouse_x,mouse_y,buttons]=GetMouse(window1);
+
+    while clicks == 0;
+        Screen('Flip', window1);
+        [clicks,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
+        RT = toc;
+    end
     
-    Screen('Flip', window1);
+    display([mouse_x, mouse_y, buttons, RT]);
     
-    WaitSecs(10.00)
-        
-
-    % Show fixation cross
-    fixationDuration = 0.500; % Length of fixation in seconds
-    drawCross(window1,W,H);
-    tFixation = Screen('Flip', window1);
-
-    % Blank screen
-    Screen(window1, 'FillRect', backgroundColor);
-    Screen('Flip', window1, tFixation + fixationDuration - slack,0);
-
-
+    WaitSecs(4.00)
+    
     Screen('CloseAll')
 
 
