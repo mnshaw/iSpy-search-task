@@ -53,11 +53,21 @@ function visualSearch()
     
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
+    
+    circleIm = imread(fullfile('Images/greenCircle.png'));
+    circleImTarg = Screen('MakeTexture', window1, circleIm);
+    
     imageSize = size(ispyIm);
+    
     posTarg = [0 0 W H];
+    posCircle = [W/3 H/3 (W/3)+256 (H/3)+256];
+    
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
+    Screen('DrawTexture', window1, circleImTarg, [], posCircle);
+    
     Screen('Flip', window1);
+    
     WaitSecs(10.00)
         
 
