@@ -50,21 +50,25 @@ function visualSearch()
     % Screen priority
     Priority(MaxPriority(window1));
     Priority(2);
+  
+    Screen('BlendFunction', window1, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
     
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
     
-    circleIm = imread(fullfile('Images/greenCircle.png'));
+    [circleIm, ~, transparency] = imread(fullfile('Images/greenCircle.png'));
+    circleIm(:,:,4) = transparency;
     circleImTarg = Screen('MakeTexture', window1, circleIm);
     
     imageSize = size(ispyIm);
     
     posTarg = [0 0 W H];
-    posCircle = [W/3 H/3 (W/3)+256 (H/3)+256];
+    posCircle = [W/4 H/4 (W/4)+256 (H/4)+256];
     
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
-     
+    Screen('DrawTexture', window1, circleImTarg, [], posCircle);
+    
     clicks = 0;
     tic % Reset the clock
     SetMouse(W/2,H/2,window1);
