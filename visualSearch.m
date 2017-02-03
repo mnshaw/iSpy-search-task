@@ -17,7 +17,20 @@ function visualSearch()
     Screen(window1,'FillRect',backgroundColor);
     Screen('Flip', window1);
     Screen('Preference', 'ConserveVRAM', window1);
-
+    
+    boxWidth = W/20; % side length of the square around the pins
+    pinCoords = [W/8.33 H/19.5; % top left corner of square around pins
+        W/1.6 H/8.84;
+        W/2.04 H/2.47;
+        W/666.67 H/1.96;
+        W/2.99 H/1.89;
+        W/1.17 H/5.4];
+    % Pin 1: 119, 34; 173, 83
+    % Pin 2: 624, 75; 668, 125
+    % Pin 3: 491, 268; 538, 313
+    % Pin 4: 1.5, 338; 63, 394
+    % Pin 5: 335, 351; 382, 399
+    % Pin 6: 856, 308; 893, 358
     
     %TODO: save results
     % Set up the output file
@@ -59,20 +72,38 @@ function visualSearch()
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
      
     clicks = 0;
+    pinClicks = 0;
+    distractorClicks = 0;
     tic % Reset the clock
     SetMouse(W/2,H/2,window1);
     ShowCursor('CrossHair',window1);
     [mouse_x,mouse_y,buttons]=GetMouse(window1);
 
-    while clicks == 0;
-        Screen('Flip', window1);
-        [clicks,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
+    Screen('Flip', window1);
+    while clicks < 6;
+        distractor = true;
+        [click,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
+        if (click == 1)
+            clicks = clicks + 1;
+        end
         RT = toc;
-    end
-    
-    display([mouse_x, mouse_y, buttons, RT]);
-    
-    WaitSecs(4.00)
+        display([mouse_x, mouse_y, buttons, RT, clicks]);
+        
+        for i=1:length(pinCoords)
+            if (mouse_x > pinCoords(i, 1) && mouse_y > pinCoords(i, 2) ...
+                && mouse_x < pinCoords(i, 1) + boxWidth ...
+                && mouse_y < pinCoords(i, 2) + boxWidth)
+                pinClicks = pinClicks + 1;
+                distractor = false;
+            end
+        end
+        if distractor
+            distractorClicks = distractorClicks + 1;
+        end
+    end  
+     
+    display([pinClicks, distractorClicks]); 
+    WaitSecs(2.00)
     
     Screen('CloseAll')
 
