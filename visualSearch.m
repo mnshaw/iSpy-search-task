@@ -1,10 +1,6 @@
 function visualSearch(subID) 
     subID=num2str(subID);
 
-    % Load experiment parameters
-%     settingsVisualSearch
-
-
     uniqueEffScore=0; % out of 6 pins
     correctEffScore=0; % total clicks on pins
     distractorClicks=0; % total clicks on non-pins
@@ -15,7 +11,6 @@ function visualSearch(subID)
     textColor=255;
     whichScreen = max(Screen('Screens'));
     [window1, rect] = Screen('Openwindow',whichScreen,backgroundColor,[0 0 1000 663],[],2);
-    slack = Screen('GetFlipInterval', window1)/2;
     W=rect(RectRight); % screen width
     H=rect(RectBottom); % screen height
     Screen(window1,'FillRect',backgroundColor);
@@ -31,18 +26,11 @@ function visualSearch(subID)
         W/1.185 H/2.22];
     pinClickMat = [0 0 0 0 0 0]; % if pin has been clicked, 1
     
-    % Pin 1: 119, 34; 173, 83
-    % Pin 2: 624, 75; 668, 125
-    % Pin 3: 491, 268; 538, 313
-    % Pin 4: 1.5, 338; 63, 394
-    % Pin 5: 335, 351; 382, 399
-    % Pin 6: 856, 308; 893, 358
-    
     pinBoxes = [pinCoords pinCoords(:,1)+(boxWidth) pinCoords(:,2)+(boxWidth)];
-    
 
+    % Make output file
     resultsFolder = 'results';
-    outputfile = fopen([resultsFolder '/VisualSearch_sub' num2str(subID) '.txt'],'a');
+    outputfile = fopen([resultsFolder '/VisualSearch_sub' subID '.txt'],'a');
     display(outputfile);
     fprintf(outputfile, 'subID\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -72,20 +60,18 @@ function visualSearch(subID)
   
     Screen('BlendFunction', window1, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
     
+    % Display iSpy image
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
     
     [circleIm, ~, transparency] = imread(fullfile('Images/greenCircle.png'));
     circleIm(:,:,4) = transparency;
     circleImTarg = Screen('MakeTexture', window1, circleIm);
-    
-    imageSize = size(ispyIm);
-    
+        
     posTarg = [0 0 W H];
     
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
-    %Screen('DrawTexture', window1, circleImTarg, [], posCircle);
     
     clicks = 0;
     tic % Reset the clock
@@ -94,6 +80,7 @@ function visualSearch(subID)
     [mouse_x,mouse_y,buttons]=GetMouse(window1);
 
     Screen('Flip', window1);
+    
     while clicks < 6;
         distractor = true;
         [click,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
@@ -103,15 +90,20 @@ function visualSearch(subID)
         RT = toc;
         display([mouse_x, mouse_y, buttons, RT, clicks]);
         
+        % Check if clicked in each of the pins
         for i=1:length(pinCoords)
             if (mouse_x > pinCoords(i, 1) && mouse_y > pinCoords(i, 2) ...
                 && mouse_x < pinCoords(i, 1) + boxWidth ...
                 && mouse_y < pinCoords(i, 2) + boxWidth)
+                % If the pin has been clicked already, increase unique
+                % efficiency score
                 if (pinClickMat(i) == 0)
                     uniqueEffScore = uniqueEffScore + 1;
                     pinClickMat(i) = 1;
                 end
+                % A click on a pin increases the correct efficiency score
                 correctEffScore = correctEffScore + 1;
+                % Show this was a click on a pin, not a distractor
                 distractor = false;
                 Screen(window1, 'FillRect', backgroundColor);
                 Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
@@ -133,12 +125,12 @@ function visualSearch(subID)
     display(uniqueEffScore);
     display(correctEffScore);
     display(distractorClicks); 
-    WaitSecs(2.00)
+    WaitSecs(1.00)
     
     correctEffRatio = correctEffScore/(distractorClicks + correctEffScore);
     display(correctEffRatio);  
     
-    
+    % print values to the output file
     fprintf(outputfile, '%s\t %d\t %d\t %d\t %f\t\n', ...
         subID, uniqueEffScore, correctEffScore, distractorClicks, ...
         correctEffRatio);

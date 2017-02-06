@@ -1,2 +1,10 @@
 subID	 Unique	 Corr.	 Dist.	 Correct Ratio	
 1	 2	 3	 3	 0.500000	
+subID	 Unique	 Corr.	 Distr.	 Correct Ratio	
+1	 0	 0	 6	 0.000000	
+subID	 Unique	 Corr.	 Distr.	 Correct Ratio	
+1	 0	 0	 6	 0.000000	
+subID	 Unique	 Corr.	 Distr.	 Correct Ratio	
+1	 0	 0	 6	 0.000000	
+subID	 Unique	 Corr.	 Distr.	 Correct Ratio	
+1	 2	 2	 4	 0.333333	
