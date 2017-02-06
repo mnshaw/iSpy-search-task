@@ -1,0 +1,2 @@
+subID	 Unique	 Corr.	 Dist.	 Correct Ratio	
+1	 2	 3	 3	 0.500000	

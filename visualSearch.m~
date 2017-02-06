@@ -42,9 +42,9 @@ function visualSearch(subID)
     
 
     resultsFolder = 'results';
-    outputfile = fopen([resultsFolder '/VisualSearch_sub' num2str(subID) '.txt'],'a');
-    display(outputfile);
-    fprintf(outputfile, 'subID\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
+    outputfile = fopen([resultsFolder '/VisualSearch_' num2str(subID) ...
+        '.txt'],'a');
+    fprintf(outputfile, 'subID\t Unique-Efficiency-Score\t Correct-Efficiency-Score\t Distractor-Clicks\t Correct-Efficiency-Ratio\t\n');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Run the experiment
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,9 +139,8 @@ function visualSearch(subID)
     display(correctEffRatio);  
     
     
-    fprintf(outputfile, '%s\t %d\t %d\t %d\t %f\t\n', ...
-        subID, uniqueEffScore, correctEffScore, distractorClicks, ...
-        correctEffRatio);
+    fprintf(outputfile, 'subID\t Unique-Efficiency-Score\t Correct-Efficiency-Score\t Distractor-Clicks\t Correct-Efficiency-Ratio\t\n', ...
+        subID, );
 
     Screen('CloseAll')
 
