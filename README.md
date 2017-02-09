@@ -1,5 +1,5 @@
 # ispy-search-task
-A visual search task using iSpy pictures for use in the Infant Cognition Lab at Carnegie Mellon University.
+A visual search task using an iSpy picture for use in the Infant Cognition Lab at Carnegie Mellon University.
 
 <h3>Instructions</h3>
 <ol>
