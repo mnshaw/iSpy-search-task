@@ -71,7 +71,7 @@ function visualSearch()
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
     
-    [circleIm, ~, transparency] = imread(fullfile('Images/greenCircle.png'));
+    [circleIm, ~, transparency] = imread(fullfile('Images/circle.png'));
     circleIm(:,:,4) = transparency;
     circleImTarg = Screen('MakeTexture', window1, circleIm);
     
@@ -81,30 +81,43 @@ function visualSearch()
     
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
-    %Screen('DrawTexture', window1, circleImTarg, [], posCircle);
     
+    timeout = 10;
     clicks = 0;
     pinClicks = 0;
     distractorClicks = 0;
-    tic % Reset the clock
     SetMouse(W/2,H/2,window1);
     ShowCursor('CrossHair',window1);
     [mouse_x,mouse_y,buttons]=GetMouse(window1);
+    
+    timeoutTimer = timer;
+    timeoutTimer.StartDelay = timeout;
+    timeoutTimer.TimerFcn = @(~,~) endTest(window1, W, H);
 
     Screen('Flip', window1);
-    while clicks < 6;
+    while 1
+        
         distractor = true;
-        [click,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
+        try
+            [click,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
+        catch ME
+            break;
+        end
+        
         if (click == 1)
             clicks = clicks + 1;
         end
-        RT = toc;
-        display([mouse_x, mouse_y, buttons, RT, clicks]);
         
         for i=1:length(pinCoords)
             if (mouse_x > pinCoords(i, 1) && mouse_y > pinCoords(i, 2) ...
                 && mouse_x < pinCoords(i, 1) + boxWidth ...
                 && mouse_y < pinCoords(i, 2) + boxWidth)
+            
+                if (i == 4)
+                    display('started');
+                    start(timeoutTimer);
+                end
+            
                 pinClicks = pinClicks + 1;
                 distractor = false;
                 Screen(window1, 'FillRect', backgroundColor);
@@ -125,9 +138,6 @@ function visualSearch()
     end  
      
     display([pinClicks, distractorClicks]); 
-    WaitSecs(2.00)
-    
-    Screen('CloseAll')
 
 
 end
@@ -136,10 +146,18 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Draw a fixation cross (overlapping horizontal and vertical bar)
-function drawCross(window,W,H)
+function drawCross(window, W, H)
     barLength = 16; % in pixels
     barWidth = 2; % in pixels
     barColor = 255; % number from 0 (black) to 255 (white) 
     Screen('FillRect', window, barColor,[ (W-barLength)/2 (H-barWidth)/2 (W+barLength)/2 (H+barWidth)/2]);
     Screen('FillRect', window, barColor ,[ (W-barWidth)/2 (H-barLength)/2 (W+barWidth)/2 (H+barLength)/2]);
+end
+
+function endTest(window, W, H)
+    Screen('TextSize',window,20);
+    Screen('DrawText',window,'The test has ended', W/2 - W/4, H/4, 255);
+    Screen('Flip',window);
+    WaitSecs(2.00);
+    Screen('CloseAll');
 end
