@@ -1,5 +1,4 @@
 function visualSearch(subID, timeout) 
-    subID=num2str(subID);
     
     % Default timeout is 3 minutes
     if nargin < 2
@@ -15,7 +14,8 @@ function visualSearch(subID, timeout)
     backgroundColor=0;
     textColor=255;
     whichScreen = max(Screen('Screens'));
-    [window1, rect] = Screen('Openwindow',whichScreen,backgroundColor,[0 0 1000 663],[],2);
+    %[window1, rect] = Screen('Openwindow',whichScreen,backgroundColor,[0 0 1000 663],[],2);
+    [window1, rect] = Screen('Openwindow',whichScreen,backgroundColor,[],[],2);
     W=rect(RectRight); % screen width
     H=rect(RectBottom); % screen height
     Screen(window1,'FillRect',backgroundColor);
@@ -31,13 +31,15 @@ function visualSearch(subID, timeout)
         W/1.185 H/2.22];
     pinClickMat = [0 0 0 0 0 0]; % if pin has been clicked, 1
     
+    finalTime = timeout;
+
     pinBoxes = [pinCoords pinCoords(:,1)+(boxWidth) pinCoords(:,2)+(boxWidth)];
 
     % Make output file
     resultsFolder = 'results';
-    outputfile = fopen([resultsFolder '/VisualSearch_sub' subID '.txt'],'a');
+    outputfile = fopen([resultsFolder '/VisualSearch_sub_' subID '.txt'],'a');
     display(outputfile);
-    fprintf(outputfile, 'subID\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
+    fprintf(outputfile, 'subID\t Time\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Run the experiment
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,6 +90,8 @@ function visualSearch(subID, timeout)
     ShowCursor('CrossHair',window1);
     [mouse_x,mouse_y,buttons] = GetMouse(window1);
     
+    started = false;
+    
     timeoutTimer = timer;
     timeoutTimer.StartDelay = timeout;
     timeoutTimer.TimerFcn = @(~,~) endTest(window1, W, H);
@@ -113,8 +117,10 @@ function visualSearch(subID, timeout)
                 && mouse_y < pinCoords(i, 2) + boxWidth)
 
                 % Begin the timer when pin 4, the 'start' pin, is clicked
-                if (i == 4)
+                if (i == 4) && (~started)
+                    started = true;
                     start(timeoutTimer);
+                    tic;
                 end
             
                 % If the pin has not been clicked already, increase unique
@@ -142,6 +148,7 @@ function visualSearch(subID, timeout)
                 % All pins have been clicked
                 if sum(pinClickMat) == 6
                     delete(timeoutTimer);
+                    finalTime = toc;
                     endTest(window1, W, H);
                     break;
                 end
@@ -163,9 +170,9 @@ function visualSearch(subID, timeout)
     display(correctEffRatio);  
     
     % print values to the output file
-    fprintf(outputfile, '%s\t %d\t %d\t %d\t %f\t\n', ...
-        subID, uniqueEffScore, correctEffScore, distractorClicks, ...
-        correctEffRatio);
+    fprintf(outputfile, '%s\t %0.2f\t %d\t %d\t %d\t %f\t\n', ...
+        subID, finalTime, uniqueEffScore, correctEffScore, ...
+        distractorClicks, correctEffRatio);
 
 
 end
@@ -184,7 +191,7 @@ end
 
 function endTest(window, W, H)
     Screen('TextSize',window,20);
-    Screen('DrawText',window,'The test has ended', W/2 - W/4, H/4, 255);
+    Screen('DrawText',window,'The test has ended', W/2 - W/8, H/2, 255);
     Screen('Flip',window);
     WaitSecs(2.00);
     Screen('CloseAll');
