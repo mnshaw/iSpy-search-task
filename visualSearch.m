@@ -121,6 +121,10 @@ function visualSearch(subID, timeout)
                     started = true;
                     start(timeoutTimer);
                     tic;
+<<<<<<< HEAD
+=======
+                    t = tic;
+>>>>>>> 06bc4a7608cb78556c00f534d8dee03b4a9900f9
                 end
             
                 % If the pin has not been clicked already, increase unique
