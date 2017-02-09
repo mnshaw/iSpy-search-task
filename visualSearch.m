@@ -90,6 +90,8 @@ function visualSearch(subID, timeout)
     ShowCursor('CrossHair',window1);
     [mouse_x,mouse_y,buttons] = GetMouse(window1);
     
+    started = false;
+    
     timeoutTimer = timer;
     timeoutTimer.StartDelay = timeout;
     timeoutTimer.TimerFcn = @(~,~) endTest(window1, W, H);
@@ -115,7 +117,8 @@ function visualSearch(subID, timeout)
                 && mouse_y < pinCoords(i, 2) + boxWidth)
 
                 % Begin the timer when pin 4, the 'start' pin, is clicked
-                if (i == 4)
+                if (i == 4) && (~started)
+                    started = true;
                     start(timeoutTimer);
                     tic;
                     t = tic;
