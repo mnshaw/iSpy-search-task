@@ -1,6 +1,10 @@
 function visualSearch(subID) 
     subID=num2str(subID);
 
+    % Load experiment parameters
+%     settingsVisualSearch
+
+
     uniqueEffScore=0; % out of 6 pins
     correctEffScore=0; % total clicks on pins
     distractorClicks=0; % total clicks on non-pins
@@ -11,6 +15,7 @@ function visualSearch(subID)
     textColor=255;
     whichScreen = max(Screen('Screens'));
     [window1, rect] = Screen('Openwindow',whichScreen,backgroundColor,[0 0 1000 663],[],2);
+    slack = Screen('GetFlipInterval', window1)/2;
     W=rect(RectRight); % screen width
     H=rect(RectBottom); % screen height
     Screen(window1,'FillRect',backgroundColor);
@@ -26,13 +31,20 @@ function visualSearch(subID)
         W/1.185 H/2.22];
     pinClickMat = [0 0 0 0 0 0]; % if pin has been clicked, 1
     
+    % Pin 1: 119, 34; 173, 83
+    % Pin 2: 624, 75; 668, 125
+    % Pin 3: 491, 268; 538, 313
+    % Pin 4: 1.5, 338; 63, 394
+    % Pin 5: 335, 351; 382, 399
+    % Pin 6: 856, 308; 893, 358
+    
     pinBoxes = [pinCoords pinCoords(:,1)+(boxWidth) pinCoords(:,2)+(boxWidth)];
+    
 
-    % Make output file
     resultsFolder = 'results';
-    outputfile = fopen([resultsFolder '/VisualSearch_sub' subID '.txt'],'a');
-    display(outputfile);
-    fprintf(outputfile, 'subID\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
+    outputfile = fopen([resultsFolder '/VisualSearch_' num2str(subID) ...
+        '.txt'],'a');
+    fprintf(outputfile, 'subID\t Unique-Efficiency-Score\t Correct-Efficiency-Score\t Distractor-Clicks\t Correct-Efficiency-Ratio\t\n');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Run the experiment
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,72 +72,46 @@ function visualSearch(subID)
   
     Screen('BlendFunction', window1, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
     
-    % Display iSpy image
     ispyIm=imread(fullfile('Images/ispy1.jpg'));
     ispyImTarg = Screen('MakeTexture', window1, ispyIm);
     
-    [circleIm, ~, transparency] = imread(fullfile('Images/circle.png'));
+    [circleIm, ~, transparency] = imread(fullfile('Images/greenCircle.png'));
     circleIm(:,:,4) = transparency;
     circleImTarg = Screen('MakeTexture', window1, circleIm);
-        
+    
+    imageSize = size(ispyIm);
+    
     posTarg = [0 0 W H];
     
     Screen(window1, 'FillRect', backgroundColor);
     Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
+    %Screen('DrawTexture', window1, circleImTarg, [], posCircle);
     
-    timeout = 10;
     clicks = 0;
-    pinClicks = 0;
-    distractorClicks = 0;
-
     tic % Reset the clock
-
     SetMouse(W/2,H/2,window1);
     ShowCursor('CrossHair',window1);
     [mouse_x,mouse_y,buttons]=GetMouse(window1);
-    
-    timeoutTimer = timer;
-    timeoutTimer.StartDelay = timeout;
-    timeoutTimer.TimerFcn = @(~,~) endTest(window1, W, H);
 
     Screen('Flip', window1);
-
-    while 1
+    while clicks < 6;
         distractor = true;
-        try
-            [click,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
-        catch ME
-            break;
-        end
-        
+        [click,mouse_x,mouse_y,buttons]=GetClicks(window1,0);
         if (click == 1)
             clicks = clicks + 1;
         end
+        RT = toc;
+        display([mouse_x, mouse_y, buttons, RT, clicks]);
         
-        % Check if clicked in each of the pins
         for i=1:length(pinCoords)
             if (mouse_x > pinCoords(i, 1) && mouse_y > pinCoords(i, 2) ...
                 && mouse_x < pinCoords(i, 1) + boxWidth ...
                 && mouse_y < pinCoords(i, 2) + boxWidth)
-<<<<<<< HEAD
-            
-                if (i == 4)
-                    display('started');
-                    start(timeoutTimer);
-                end
-            
-                pinClicks = pinClicks + 1;
-=======
-                % If the pin has been clicked already, increase unique
-                % efficiency score
                 if (pinClickMat(i) == 0)
                     uniqueEffScore = uniqueEffScore + 1;
                     pinClickMat(i) = 1;
                 end
-                % A click on a pin increases the correct efficiency score
                 correctEffScore = correctEffScore + 1;
-                % Show this was a click on a pin, not a distractor
->>>>>>> 6ef88306fa11a100f2e4bffedbd6e38709dc73b1
                 distractor = false;
                 Screen(window1, 'FillRect', backgroundColor);
                 Screen('DrawTexture', window1, ispyImTarg, [], posTarg);
@@ -144,24 +130,19 @@ function visualSearch(subID)
         end
     end  
      
-<<<<<<< HEAD
-    display([pinClicks, distractorClicks]); 
-=======
     display(uniqueEffScore);
     display(correctEffScore);
     display(distractorClicks); 
-    WaitSecs(1.00)
+    WaitSecs(2.00)
     
     correctEffRatio = correctEffScore/(distractorClicks + correctEffScore);
     display(correctEffRatio);  
     
-    % print values to the output file
-    fprintf(outputfile, '%s\t %d\t %d\t %d\t %f\t\n', ...
-        subID, uniqueEffScore, correctEffScore, distractorClicks, ...
-        correctEffRatio);
+    
+    fprintf(outputfile, 'subID\t Unique-Efficiency-Score\t Correct-Efficiency-Score\t Distractor-Clicks\t Correct-Efficiency-Ratio\t\n', ...
+        subID, );
 
     Screen('CloseAll')
->>>>>>> 6ef88306fa11a100f2e4bffedbd6e38709dc73b1
 
 
 end
@@ -170,18 +151,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Draw a fixation cross (overlapping horizontal and vertical bar)
-function drawCross(window, W, H)
+function drawCross(window,W,H)
     barLength = 16; % in pixels
     barWidth = 2; % in pixels
     barColor = 255; % number from 0 (black) to 255 (white) 
     Screen('FillRect', window, barColor,[ (W-barLength)/2 (H-barWidth)/2 (W+barLength)/2 (H+barWidth)/2]);
     Screen('FillRect', window, barColor ,[ (W-barWidth)/2 (H-barLength)/2 (W+barWidth)/2 (H+barLength)/2]);
-end
-
-function endTest(window, W, H)
-    Screen('TextSize',window,20);
-    Screen('DrawText',window,'The test has ended', W/2 - W/4, H/4, 255);
-    Screen('Flip',window);
-    WaitSecs(2.00);
-    Screen('CloseAll');
 end
