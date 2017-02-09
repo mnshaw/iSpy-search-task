@@ -31,13 +31,15 @@ function visualSearch(subID, timeout)
         W/1.185 H/2.22];
     pinClickMat = [0 0 0 0 0 0]; % if pin has been clicked, 1
     
+    finalTime = timeout;
+
     pinBoxes = [pinCoords pinCoords(:,1)+(boxWidth) pinCoords(:,2)+(boxWidth)];
 
     % Make output file
     resultsFolder = 'results';
     outputfile = fopen([resultsFolder '/VisualSearch_sub' subID '.txt'],'a');
     display(outputfile);
-    fprintf(outputfile, 'subID\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
+    fprintf(outputfile, 'subID\t Time\t Unique\t Corr.\t Distr.\t Correct Ratio\t\n');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Run the experiment
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,6 +117,8 @@ function visualSearch(subID, timeout)
                 % Begin the timer when pin 4, the 'start' pin, is clicked
                 if (i == 4)
                     start(timeoutTimer);
+                    tic;
+                    t = tic;
                 end
             
                 % If the pin has not been clicked already, increase unique
@@ -142,6 +146,7 @@ function visualSearch(subID, timeout)
                 % All pins have been clicked
                 if sum(pinClickMat) == 6
                     delete(timeoutTimer);
+                    finalTime = toc;
                     endTest(window1, W, H);
                     break;
                 end
@@ -163,9 +168,9 @@ function visualSearch(subID, timeout)
     display(correctEffRatio);  
     
     % print values to the output file
-    fprintf(outputfile, '%s\t %d\t %d\t %d\t %f\t\n', ...
-        subID, uniqueEffScore, correctEffScore, distractorClicks, ...
-        correctEffRatio);
+    fprintf(outputfile, '%s\t %0.2f\t %d\t %d\t %d\t %f\t\n', ...
+        subID, finalTime, uniqueEffScore, correctEffScore, ...
+        distractorClicks, correctEffRatio);
 
 
 end
